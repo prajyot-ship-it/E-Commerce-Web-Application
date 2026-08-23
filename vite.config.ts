@@ -5,6 +5,10 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // GitHub Pages serves this repository below its name instead of the domain root.
+    // Without this, Vite emits `/assets/...` URLs and the deployed site loads a
+    // blank page because those scripts resolve to the wrong location.
+    base: '/E-Commerce-Web-Application/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
