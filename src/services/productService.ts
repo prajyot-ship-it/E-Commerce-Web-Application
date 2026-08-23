@@ -11,7 +11,7 @@ import {
   orderBy,
   where,
 } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db, cleanForFirestore } from '../lib/firebase';
 import { Product, Review } from '../types';
 import { SAMPLE_PRODUCTS, SAMPLE_REVIEWS } from '../data/sampleProducts';
 
@@ -97,7 +97,7 @@ export const productService = {
     };
 
     try {
-      await setDoc(doc(db, PRODUCTS_COLLECTION, docId), newProduct);
+      await setDoc(doc(db, PRODUCTS_COLLECTION, docId), cleanForFirestore(newProduct));
       return docId;
     } catch (error) {
       console.error('Failed to add product to Firestore:', error);
@@ -109,10 +109,10 @@ export const productService = {
   async updateProduct(id: string, updates: Partial<Product>): Promise<void> {
     try {
       const docRef = doc(db, PRODUCTS_COLLECTION, id);
-      await updateDoc(docRef, {
+      await updateDoc(docRef, cleanForFirestore({
         ...updates,
         updatedAt: new Date().toISOString(),
-      });
+      }));
     } catch (error) {
       console.error('Failed to update product in Firestore:', error);
       throw error;
@@ -139,13 +139,13 @@ export const productService = {
       }
 
       for (const item of SAMPLE_PRODUCTS) {
-        await setDoc(doc(db, PRODUCTS_COLLECTION, item.id), item);
+        await setDoc(doc(db, PRODUCTS_COLLECTION, item.id), cleanForFirestore(item));
       }
 
       // Also seed sample reviews
       for (const [prodId, reviews] of Object.entries(SAMPLE_REVIEWS)) {
         for (const rev of reviews) {
-          await setDoc(doc(db, REVIEWS_COLLECTION, rev.id), rev);
+          await setDoc(doc(db, REVIEWS_COLLECTION, rev.id), cleanForFirestore(rev));
         }
       }
       console.log('Sample catalog seeded into Firestore successfully');
@@ -254,7 +254,7 @@ export const productService = {
     };
 
     try {
-      await setDoc(doc(db, REVIEWS_COLLECTION, revId), newRev);
+      await setDoc(doc(db, REVIEWS_COLLECTION, revId), cleanForFirestore(newRev));
 
       // Save to local cache as fallback
       const existingReviews = await this.getProductReviews(review.productId);

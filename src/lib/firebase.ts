@@ -24,3 +24,26 @@ export const db = firebaseConfigJson.firestoreDatabaseId
 // Initialize Firebase Auth
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+
+/**
+ * Recursively removes all `undefined` values from an object or array before passing
+ * to Firestore setDoc/updateDoc/addDoc, which otherwise throws an unsupported field error.
+ */
+export function cleanForFirestore<T>(data: T): T {
+  if (data === null || data === undefined) {
+    return null as unknown as T;
+  }
+  if (Array.isArray(data)) {
+    return data.map((item) => cleanForFirestore(item)) as unknown as T;
+  }
+  if (typeof data === 'object' && !(data instanceof Date)) {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+      if (value !== undefined) {
+        result[key] = cleanForFirestore(value);
+      }
+    }
+    return result as T;
+  }
+  return data;
+}

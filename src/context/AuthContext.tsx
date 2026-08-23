@@ -9,7 +9,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, googleProvider } from '../lib/firebase';
+import { auth, db, googleProvider, cleanForFirestore } from '../lib/firebase';
 import { UserProfile, UserRole } from '../types';
 
 interface AuthContextType {
@@ -83,12 +83,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               uid: firebaseUser.uid,
               email: firebaseUser.email || 'user@nexusstore.com',
               displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Store Customer',
-              photoURL: firebaseUser.photoURL || undefined,
+              photoURL: firebaseUser.photoURL || '',
               role: assignedRole,
               createdAt: new Date().toISOString(),
             };
 
-            await setDoc(userDocRef, newProfile);
+            await setDoc(userDocRef, cleanForFirestore(newProfile));
             setUserProfile(newProfile);
           }
         } catch (error) {
@@ -144,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role: email.toLowerCase().includes('admin') ? 'admin' : role,
         createdAt: new Date().toISOString(),
       };
-      await setDoc(doc(db, 'users', cred.user.uid), newProfile);
+      await setDoc(doc(db, 'users', cred.user.uid), cleanForFirestore(newProfile));
       setUserProfile(newProfile);
     } catch (err: any) {
       console.warn('Firebase signup fallback:', err);

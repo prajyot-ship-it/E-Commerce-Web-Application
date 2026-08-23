@@ -11,7 +11,7 @@ import {
   orderBy,
   increment,
 } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db, cleanForFirestore } from '../lib/firebase';
 import { Order, OrderStatus, OrderTimelineEvent, ShippingAddress, CartItem } from '../types';
 import { productService } from './productService';
 
@@ -108,14 +108,15 @@ export const orderService = {
       carrier,
       estimatedDelivery: estDeliveryStr,
       timeline: initialTimeline,
-      couponCode: params.couponCode,
+      couponCode: params.couponCode || '',
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
     };
 
-    // Save order in Firestore
+    // Save order in Firestore with sanitized data (no undefined fields)
     try {
-      await setDoc(doc(db, ORDERS_COLLECTION, orderId), orderData);
+      const sanitizedOrder = cleanForFirestore(orderData);
+      await setDoc(doc(db, ORDERS_COLLECTION, orderId), sanitizedOrder);
 
       // Decrement stock for purchased products
       for (const item of params.items) {
