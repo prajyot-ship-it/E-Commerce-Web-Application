@@ -1,0 +1,7 @@
+{
+  "name": "NexusStore E-Commerce",
+  "description": "Full-stack e-commerce web application with product catalog, reviews & ratings, related products engine, side-by-side product comparison, cart, checkout, order tracking, and admin dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
